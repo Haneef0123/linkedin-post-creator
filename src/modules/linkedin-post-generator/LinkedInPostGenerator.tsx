@@ -15,6 +15,7 @@ export const LinkedInPostGenerator: React.FC = () => {
     generatedPost,
     isGenerating,
     copySuccess,
+    error,
     generatePost,
     copyToClipboard,
     getPostStats,
@@ -34,6 +35,7 @@ export const LinkedInPostGenerator: React.FC = () => {
               onTopicChange={setTopic}
               onGenerate={generatePost}
               isGenerating={isGenerating}
+              error={error}
             />
           </div>
 
