@@ -53,63 +53,71 @@ export const UI_TEXT = {
 // CSS Classes Constants
 export const CSS_CLASSES = {
   layout: {
-    container: "min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8",
-    maxWidth: "max-w-6xl mx-auto",
-    grid: "grid gap-8 lg:gap-12",
+    container: "min-h-screen bg-background py-10 md:px-16",
+    maxWidth: "max-w-screen-xl mx-auto w-full",
+    grid: "flex flex-col gap-8 md:gap-6 md:px-0 lg:grid lg:grid-cols-2 lg:gap-6", // 32px gap on mobile, 24px on desktop
   },
   header: {
-    container: "text-center mb-12 lg:mb-16",
-    title: "text-4xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent",
+    container: "text-center mb-8 md:mb-12 px-4", // Keep header padding on mobile for text centering
+    title:
+      "text-2xl md:text-4xl font-semibold text-foreground mb-3 tracking-tight",
     description:
-      "text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed",
+      "text-sm md:text-base text-muted-foreground max-w-3xl mx-auto leading-6",
   },
   card: {
-    base: "bg-card border border-border rounded-2xl shadow-xl backdrop-blur-sm",
-    tipsCard: "mt-12 bg-card border border-border rounded-2xl shadow-xl backdrop-blur-sm",
+    base: "bg-[#f9f9f9] rounded-none md:rounded-xl p-4 md:p-6 w-full", // 16px padding on mobile, 24px on desktop
+    inner: "", // No inner container needed
+    tipsCard: "bg-[#f9f9f9] rounded-none md:rounded-xl p-4 md:p-6 w-full",
   },
   cardTitle: {
-    large: "text-2xl lg:text-3xl font-bold text-center",
-    medium: "text-xl lg:text-2xl font-semibold text-center",
+    large: "text-xl md:text-2xl font-semibold text-foreground mb-4 md:mb-6",
+    medium: "text-lg md:text-xl font-semibold text-foreground mb-4 md:mb-6",
   },
   form: {
-    container: "space-y-6 p-8",
+    container: "space-y-6", // Removed padding as it's handled by card.base
     fieldContainer: "space-y-3",
-    label: "text-sm font-semibold text-foreground",
-    textarea: "min-h-[140px] resize-none bg-background border-2 border-border rounded-xl text-base focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200",
-    button: "w-full h-14 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-4 focus:ring-primary/20 transition-all duration-200 shadow-lg hover:shadow-xl",
+    label: "text-sm font-semibold text-foreground block",
+    textarea:
+      "min-h-[120px] resize-none bg-white border border-gray-200 text-foreground rounded-lg p-3 shadow-sm",
+    button:
+      "w-full h-12 text-sm font-bold transition-all duration-200 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg",
   },
   postDisplay: {
-    container: "space-y-6 p-8",
+    container: "space-y-6", // Removed padding as it's handled by card.base
     postArea: "relative",
-    postBox: "rounded-xl p-8 border-2 transition-all duration-300 min-h-[200px]",
-    postBoxGenerated: "bg-background border-border shadow-inner",
-    postBoxEmpty: "bg-muted/20 border-dashed border-muted-foreground/30",
-    postText: "whitespace-pre-wrap leading-relaxed text-base",
+    postBox:
+      "rounded-lg p-6 border transition-all duration-300 min-h-[200px] bg-white shadow-sm",
+    postBoxGenerated: "border-gray-200",
+    postBoxEmpty: "border-dashed border-gray-300",
+    postText: "whitespace-pre-wrap leading-6 text-sm md:text-base",
     postTextGenerated: "text-foreground",
     postTextEmpty: "text-muted-foreground text-center italic",
-    copyButtonContainer: "flex justify-center pt-4",
+    copyButtonContainer: "flex justify-center",
     copyButton:
-      "min-w-[220px] h-12 text-base font-semibold rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90 focus:ring-4 focus:ring-secondary/20 transition-all duration-200 shadow-md hover:shadow-lg",
-    copyButtonSuccess: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500/20",
-    statsContainer: "bg-secondary/50 rounded-xl p-6 border border-secondary/20 backdrop-blur-sm",
-    statsGrid: "grid grid-cols-3 gap-6 text-center",
-    statItem: "p-3",
-    statItemBorder: "p-3 border-x border-secondary/30",
-    statNumber: "text-3xl font-bold text-primary",
-    statLabel: "text-sm font-medium text-muted-foreground uppercase tracking-wide",
+      "min-w-[160px] h-12 text-sm font-bold transition-all duration-200 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg",
+    copyButtonSuccess: "bg-green-600 text-white hover:bg-green-700",
+    statsContainer: "bg-white rounded-lg p-4 border border-gray-200 shadow-sm",
+    statsInner: "bg-card rounded-xl p-4",
+    statsGrid: "grid grid-cols-3 gap-4 text-center",
+    statItem: "p-2",
+    statItemBorder: "p-2 border-x border-gray-200",
+    statNumber: "text-xl md:text-2xl font-bold text-primary",
+    statLabel: "text-xs md:text-sm text-muted-foreground font-medium",
   },
   spinner: {
-    container: "flex items-center justify-center gap-3",
+    container: "flex items-center gap-2",
     spinner:
-      "w-5 h-5 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin",
+      "w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin",
   },
   tips: {
-    grid: "grid lg:grid-cols-2 gap-8 p-8",
-    section: "space-y-4",
-    sectionTitle: "font-bold text-lg text-foreground",
-    list: "space-y-3 text-sm text-muted-foreground",
-    listItem: "flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50",
-    listIcon: "w-5 h-5 text-primary mt-0.5 flex-shrink-0",
+    container: "", // Removed padding as it's handled by card.base
+    grid: "grid gap-6 md:grid-cols-2",
+    section: "space-y-3",
+    sectionTitle:
+      "font-semibold text-foreground text-base bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200",
+    list: "space-y-2 text-sm text-muted-foreground leading-6 px-2",
+    listItem: "flex items-start gap-2",
+    bullet: "w-1.5 h-1.5 bg-accent rounded-full mt-2 flex-shrink-0",
   },
 } as const;
 

@@ -27,23 +27,29 @@ export const LinkedInPostGenerator: React.FC = () => {
       <div className={CSS_CLASSES.layout.maxWidth}>
         <PostGeneratorHeader />
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          <PostInputForm
-            topic={topic}
-            onTopicChange={setTopic}
-            onGenerate={generatePost}
-            isGenerating={isGenerating}
-          />
+        <div className={CSS_CLASSES.layout.grid}>
+          <div className="w-full">
+            <PostInputForm
+              topic={topic}
+              onTopicChange={setTopic}
+              onGenerate={generatePost}
+              isGenerating={isGenerating}
+            />
+          </div>
 
-          <PostDisplay
-            generatedPost={generatedPost}
-            copySuccess={copySuccess}
-            onCopy={copyToClipboard}
-            stats={stats}
-          />
+          <div className="w-full">
+            <PostDisplay
+              generatedPost={generatedPost}
+              copySuccess={copySuccess}
+              onCopy={copyToClipboard}
+              stats={stats}
+            />
+          </div>
         </div>
 
-        <PostTipsSection />
+        <div className="mt-8 md:mt-8">
+          <PostTipsSection />
+        </div>
       </div>
     </div>
   );

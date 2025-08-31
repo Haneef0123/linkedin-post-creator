@@ -10,7 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "LinkedIn Post Creator",
-  description: "Create engaging LinkedIn posts that capture attention and drive meaningful conversations with your network.",
+  description:
+    "Create engaging LinkedIn posts that capture attention and drive meaningful conversations with your network.",
 };
 
 export default function RootLayout({
@@ -19,10 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${inter.variable} font-sans antialiased`}
-      >
+    <html lang="en">
+      <body className={`${inter.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

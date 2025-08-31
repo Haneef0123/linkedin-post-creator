@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PostStats } from "../hooks/use-post-generator";
 import { UI_TEXT, CSS_CLASSES } from "../constants/ui-constants";
@@ -20,30 +19,26 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({
   const displayPost = generatedPost || UI_TEXT.postDisplay.placeholder;
 
   return (
-    <Card className={CSS_CLASSES.card.base}>
-      <CardHeader>
-        <CardTitle className={CSS_CLASSES.cardTitle.large}>
-          {UI_TEXT.postDisplay.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className={CSS_CLASSES.postDisplay.container}>
-        <div className={CSS_CLASSES.postDisplay.postArea}>
+    <div className={CSS_CLASSES.card.base}>
+      <h2 className={CSS_CLASSES.cardTitle.large}>
+        {UI_TEXT.postDisplay.title}
+      </h2>
+      <div className={CSS_CLASSES.postDisplay.container}>
+        <div
+          className={`${CSS_CLASSES.postDisplay.postBox} ${
+            generatedPost
+              ? CSS_CLASSES.postDisplay.postBoxGenerated
+              : CSS_CLASSES.postDisplay.postBoxEmpty
+          }`}
+        >
           <div
-            className={`${CSS_CLASSES.postDisplay.postBox} ${
+            className={`${CSS_CLASSES.postDisplay.postText} ${
               generatedPost
-                ? CSS_CLASSES.postDisplay.postBoxGenerated
-                : CSS_CLASSES.postDisplay.postBoxEmpty
+                ? CSS_CLASSES.postDisplay.postTextGenerated
+                : CSS_CLASSES.postDisplay.postTextEmpty
             }`}
           >
-            <div
-              className={`${CSS_CLASSES.postDisplay.postText} ${
-                generatedPost
-                  ? CSS_CLASSES.postDisplay.postTextGenerated
-                  : CSS_CLASSES.postDisplay.postTextEmpty
-              }`}
-            >
-              {displayPost}
-            </div>
+            {displayPost}
           </div>
         </div>
 
@@ -91,7 +86,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
