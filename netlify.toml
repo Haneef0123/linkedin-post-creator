@@ -1,0 +1,3 @@
+[build.environment]
+  # Pin build to Node 20.x (LTS)
+  NODE_VERSION = "20"
