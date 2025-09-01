@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getPostTemplate } from "../data/post-templates";
 import { COMPONENT_CONFIG } from "../constants/ui-constants";
+import { GeminiApiService } from "@/services/gemini-api.service";
 
 export interface PostStats {
   characters: number;
@@ -18,30 +19,29 @@ export interface PostGeneratorOptions {
   targetAudience?: string;
 }
 
-// Simple API call to our Next.js API route - adapted to match hello-gpt-app-router response handling
-async function callOpenAIAPI(
+// Updated API call using new service but maintaining original logic and error handling
+async function callGeminiAPI(
   topic: string,
   options: PostGeneratorOptions = {}
-) {
-  const response = await fetch("/api/generate-post", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      topic,
-      ...options,
-    }),
+): Promise<string> {
+  // Maintaining original function name and signature for backward compatibility
+  const geminiService = new GeminiApiService();
+
+  const result = await geminiService.generatePost({
+    topic,
+    tone: options.tone,
+    length: options.length,
+    includeHashtags: options.includeHashtags,
+    includeEmojis: options.includeEmojis,
+    targetAudience: options.targetAudience,
   });
 
-  const body = await response.json();
-
-  // Handle response format exactly like hello-gpt-app-router reference
-  if (response.status !== 200) {
-    throw new Error(body.error?.message || "An error has occurred");
+  // Original response handling logic - maintaining exact error format
+  if (!result.success) {
+    throw new Error(result.error?.message || "An error has occurred");
   }
 
-  return body.content;
+  return result.data?.content || "";
 }
 
 export const usePostGenerator = () => {
@@ -56,9 +56,10 @@ export const usePostGenerator = () => {
 
     setIsGenerating(true);
     setError(null);
+    // test
 
     try {
-      const generatedContent = await callOpenAIAPI(topic.trim(), options);
+      const generatedContent = await callGeminiAPI(topic.trim(), options);
       setGeneratedPost(generatedContent);
     } catch (err) {
       setError(
