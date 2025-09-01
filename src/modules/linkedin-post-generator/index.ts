@@ -21,3 +21,6 @@ export {
   CSS_CLASSES,
   COMPONENT_CONFIG,
 } from "./constants/ui-constants";
+
+// API types for external usage
+export type { PostGeneratorOptions } from "@/types/api.types";
