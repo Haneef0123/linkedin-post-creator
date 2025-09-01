@@ -20,13 +20,13 @@ export interface PostGeneratorOptions {
 }
 
 // Updated API call using new service but maintaining original logic and error handling
-async function callOpenAIAPI(
+async function callGeminiAPI(
   topic: string,
   options: PostGeneratorOptions = {}
-) {
+): Promise<string> {
   // Maintaining original function name and signature for backward compatibility
   const geminiService = new GeminiApiService();
-  
+
   const result = await geminiService.generatePost({
     topic,
     tone: options.tone,
@@ -41,7 +41,7 @@ async function callOpenAIAPI(
     throw new Error(result.error?.message || "An error has occurred");
   }
 
-  return result.data?.content;
+  return result.data?.content || "";
 }
 
 export const usePostGenerator = () => {
@@ -58,7 +58,7 @@ export const usePostGenerator = () => {
     setError(null);
 
     try {
-      const generatedContent = await callOpenAIAPI(topic.trim(), options);
+      const generatedContent = await callGeminiAPI(topic.trim(), options);
       setGeneratedPost(generatedContent);
     } catch (err) {
       setError(

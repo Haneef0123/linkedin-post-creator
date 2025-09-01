@@ -42,31 +42,28 @@ export async function POST(request: Request) {
     });
 
     if (!result.success) {
-      return new Response(
-        JSON.stringify({ error: result.error }),
-        {
-          status: result.error?.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: result.error }), {
+        status: result.error?.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Original successful response format from route.ts - maintaining exact structure
-    return new Response(
-      JSON.stringify(result.data),
-      {
-        status: HTTP_STATUS.OK,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify(result.data), {
+      status: HTTP_STATUS.OK,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: unknown) {
     // Original error handling - same pattern as hello-gpt-app-router reference
+    const errorInstance =
+      error instanceof Error ? error : new Error("Unknown error occurred");
     return new Response(
       JSON.stringify({ error: { message: API_ERRORS.UNKNOWN_ERROR } }),
       {
         status:
-          error instanceof Error && "statusCode" in error
-            ? (error as Error & { statusCode: number }).statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR
+          errorInstance && "statusCode" in errorInstance
+            ? (errorInstance as Error & { statusCode: number }).statusCode ||
+              HTTP_STATUS.INTERNAL_SERVER_ERROR
             : HTTP_STATUS.INTERNAL_SERVER_ERROR,
         headers: { "Content-Type": "application/json" },
       }

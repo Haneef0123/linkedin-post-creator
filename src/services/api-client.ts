@@ -1,10 +1,16 @@
 // API Client Service - Extracted from original route.ts logic while maintaining exact functionality
-import { API_ERRORS, HTTP_STATUS } from '@/constants/api-constants';
-import { ApiResponse, FetchLikeResponse } from '@/types/api.types';
+import { API_ERRORS, HTTP_STATUS } from "@/constants/api-constants";
+import {
+  ApiResponse,
+  HttpResponse,
+  JsonValue,
+  SerializableData,
+  ErrorResponseData,
+} from "@/types/api.types";
 
 export class ApiClient {
   private static instance: ApiClient;
-  
+
   static getInstance(): ApiClient {
     if (!ApiClient.instance) {
       ApiClient.instance = new ApiClient();
@@ -14,17 +20,17 @@ export class ApiClient {
 
   // Original fetch logic from route.ts - maintaining exact error handling and SSL workarounds
   private async makeRequest<T>(
-    url: string, 
+    url: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      let response: FetchLikeResponse;
-      
+      let response: HttpResponse;
+
       // Original fetch attempt logic from route.ts
       try {
         const fetchOptions = {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             ...options.headers,
           },
           ...options,
@@ -57,20 +63,31 @@ export class ApiClient {
 
             // Use node-fetch-like approach with custom agent
             const requestUrl = new URL(url);
-            const requestData = options.body as string || '';
+            const requestData = (options.body as string) || "";
 
             const httpsResponse = await new Promise((resolve, reject) => {
+              const baseHeaders = {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(requestData),
+              };
+
+              // Merge headers safely
+              const mergedHeaders = { ...baseHeaders };
+              if (
+                options.headers &&
+                typeof options.headers === "object" &&
+                !Array.isArray(options.headers)
+              ) {
+                Object.assign(mergedHeaders, options.headers);
+              }
+
               const req = https.request(
                 {
                   hostname: requestUrl.hostname,
-                  port: requestUrl.port || 443,
+                  port: parseInt(requestUrl.port || "443"),
                   path: requestUrl.pathname + requestUrl.search,
-                  method: options.method || 'GET',
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Content-Length": Buffer.byteLength(requestData),
-                    ...options.headers,
-                  },
+                  method: options.method || "GET",
+                  headers: mergedHeaders,
                   agent: agent,
                 },
                 (res) => {
@@ -100,7 +117,7 @@ export class ApiClient {
               req.end();
             });
 
-            response = httpsResponse as FetchLikeResponse;
+            response = httpsResponse as HttpResponse;
           } catch {
             const errorMessage =
               fetchError instanceof Error
@@ -117,45 +134,48 @@ export class ApiClient {
         }
       }
 
-      const data = await response.json();
+      const jsonData = await response.json();
+      const data = jsonData as JsonValue;
 
       // Original error handling logic from route.ts
       if (!response.ok) {
+        const errorData = data as ErrorResponseData;
         return {
           success: false,
           error: {
-            message: data.error?.message || API_ERRORS.UNKNOWN_ERROR,
+            message: errorData.error?.message || API_ERRORS.UNKNOWN_ERROR,
             statusCode: response.status,
-            code: data.error?.code,
-          }
+            code: errorData.error?.code,
+          },
         };
       }
 
       return {
         success: true,
-        data,
+        data: data as T,
       };
     } catch (error) {
       return {
         success: false,
         error: {
-          message: error instanceof Error ? error.message : API_ERRORS.UNKNOWN_ERROR,
+          message:
+            error instanceof Error ? error.message : API_ERRORS.UNKNOWN_ERROR,
           statusCode: HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        }
+        },
       };
     }
   }
 
-  async post<T>(url: string, data: any): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data: SerializableData): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(url, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async get<T>(url: string): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(url, {
-      method: 'GET',
+      method: "GET",
     });
   }
 }
