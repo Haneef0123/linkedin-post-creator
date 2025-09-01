@@ -56,6 +56,7 @@ export const usePostGenerator = () => {
 
     setIsGenerating(true);
     setError(null);
+    // test
 
     try {
       const generatedContent = await callGeminiAPI(topic.trim(), options);
