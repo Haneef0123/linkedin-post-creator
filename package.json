@@ -7,11 +7,9 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:netlify": "netlify dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "export": "next build && next export"
+    "lint": "eslint"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
@@ -30,7 +28,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
-    "netlify-cli": "^23.4.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
