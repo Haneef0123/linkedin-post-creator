@@ -2,6 +2,8 @@
 // Key differences: Uses Gemini API instead of OpenAI, POST instead of GET, LinkedIn-specific prompts
 export const dynamic = "force-dynamic";
 
+import { createViralLinkedInPrompt } from "@/lib/utils";
+
 interface FetchLikeResponse {
   status: number;
   ok: boolean;
@@ -62,31 +64,15 @@ export async function POST(request: Request) {
     // Setting parameters for Google Gemini API request
     const geminiEndpointURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
-    // Build prompt for LinkedIn post generation
-    const lengthGuide: { [key: string]: string } = {
-      short: "100-150 words",
-      medium: "150-250 words",
-      long: "250-400 words",
-    };
-
-    const promptText = `Create a compelling LinkedIn post about: ${topic.trim()}
-
-Requirements:
-- Tone: ${tone}
-- Length: ${lengthGuide[length]}
-- Target audience: ${targetAudience}
-- Include emojis: ${includeEmojis ? "Yes" : "No"}
-- Include hashtags: ${
-      includeHashtags ? "Yes, add 5-8 relevant hashtags at the end" : "No"
-    }
-
-Structure:
-1. Start with an engaging hook
-2. Provide valuable insights or information
-3. Include a call-to-action
-4. Keep it authentic and professional
-
-Return only the LinkedIn post content, nothing else.`;
+    // Build prompt for LinkedIn post generation using utility function
+    const promptText = createViralLinkedInPrompt({
+      topic,
+      tone,
+      length,
+      targetAudience,
+      includeEmojis,
+      includeHashtags,
+    });
 
     const geminiRequestBody = {
       contents: [
@@ -120,7 +106,12 @@ Return only the LinkedIn post content, nothing else.`;
       geminiResponse = await fetch(geminiEndpointURL, fetchOptions);
     } catch (fetchError: unknown) {
       // If it's an SSL certificate error, try with a different approach
-      if (fetchError instanceof Error && fetchError.cause instanceof Error && 'code' in fetchError.cause && fetchError.cause.code === "SELF_SIGNED_CERT_IN_CHAIN") {
+      if (
+        fetchError instanceof Error &&
+        fetchError.cause instanceof Error &&
+        "code" in fetchError.cause &&
+        fetchError.cause.code === "SELF_SIGNED_CERT_IN_CHAIN"
+      ) {
         // Use dynamic import to avoid issues with Node.js modules in Edge runtime
         try {
           // For development/testing, we'll use an alternative approach
@@ -176,21 +167,30 @@ Return only the LinkedIn post content, nothing else.`;
 
           geminiResponse = response as FetchLikeResponse;
         } catch {
-          const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown network error';
+          const errorMessage =
+            fetchError instanceof Error
+              ? fetchError.message
+              : "Unknown network error";
           throw new Error(`Network request failed: ${errorMessage}`);
         }
       } else {
-        const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown network error';
+        const errorMessage =
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Unknown network error";
         throw new Error(`Network request failed: ${errorMessage}`);
       }
     }
 
     // Processing the response body
-    const geminiResponseBody = await geminiResponse.json() as GeminiResponseBody;
+    const geminiResponseBody =
+      (await geminiResponse.json()) as GeminiResponseBody;
 
     // Error handling for the Gemini endpoint - same pattern as reference
     if (geminiResponse.status !== 200) {
-      const error = new Error("Gemini API request was unsuccessful.") as Error & {
+      const error = new Error(
+        "Gemini API request was unsuccessful."
+      ) as Error & {
         statusCode: number;
         body: GeminiResponseBody;
       };
@@ -218,7 +218,8 @@ Return only the LinkedIn post content, nothing else.`;
 
     // Extract the generated content from Gemini response
     const completionText =
-      geminiResponseBody.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Unable to generate content";
+      geminiResponseBody.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "Unable to generate content";
 
     // Sending a successful response for our endpoint - same format as reference
     return new Response(
@@ -238,7 +239,10 @@ Return only the LinkedIn post content, nothing else.`;
     return new Response(
       JSON.stringify({ error: { message: "An error has occurred" } }),
       {
-        status: error instanceof Error && 'statusCode' in error ? (error as Error & { statusCode: number }).statusCode || 500 : 500,
+        status:
+          error instanceof Error && "statusCode" in error
+            ? (error as Error & { statusCode: number }).statusCode || 500
+            : 500,
         headers: { "Content-Type": "application/json" },
       }
     );
