@@ -10,23 +10,67 @@ export interface PostStats {
   hashtags: number;
 }
 
+export interface PostGeneratorOptions {
+  tone?: "professional" | "casual" | "inspirational" | "educational";
+  length?: "short" | "medium" | "long";
+  includeHashtags?: boolean;
+  includeEmojis?: boolean;
+  targetAudience?: string;
+}
+
+// Simple API call to our Next.js API route - adapted to match hello-gpt-app-router response handling
+async function callOpenAIAPI(
+  topic: string,
+  options: PostGeneratorOptions = {}
+) {
+  const response = await fetch("/api/generate-post", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      topic,
+      ...options,
+    }),
+  });
+
+  const body = await response.json();
+
+  // Handle response format exactly like hello-gpt-app-router reference
+  if (response.status !== 200) {
+    throw new Error(body.error?.message || "An error has occurred");
+  }
+
+  return body.content;
+}
+
 export const usePostGenerator = () => {
   const [topic, setTopic] = useState("");
   const [generatedPost, setGeneratedPost] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const generatePost = () => {
+  const generatePost = async (options: PostGeneratorOptions = {}) => {
     if (!topic.trim()) return;
 
     setIsGenerating(true);
+    setError(null);
 
-    // Simulate API delay
-    setTimeout(() => {
+    try {
+      const generatedContent = await callOpenAIAPI(topic.trim(), options);
+      setGeneratedPost(generatedContent);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+
+      // Fallback to template-based generation
       const selectedTemplate = getPostTemplate(topic);
       setGeneratedPost(selectedTemplate);
+    } finally {
       setIsGenerating(false);
-    }, COMPONENT_CONFIG.animation.generationDelay);
+    }
   };
 
   const copyToClipboard = async () => {
@@ -39,8 +83,8 @@ export const usePostGenerator = () => {
         () => setCopySuccess(false),
         COMPONENT_CONFIG.animation.copySuccessTimeout
       );
-    } catch (err) {
-      console.error("Failed to copy: ", err);
+    } catch {
+      // Silently handle copy errors
     }
   };
 
@@ -60,8 +104,10 @@ export const usePostGenerator = () => {
     generatedPost,
     isGenerating,
     copySuccess,
+    error,
     generatePost,
     copyToClipboard,
     getPostStats,
+    clearError: () => setError(null),
   };
 };

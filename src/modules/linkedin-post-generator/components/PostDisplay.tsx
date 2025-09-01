@@ -20,25 +20,29 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({
 
   return (
     <div className={CSS_CLASSES.card.base}>
-      <h2 className={CSS_CLASSES.cardTitle.large}>
-        {UI_TEXT.postDisplay.title}
-      </h2>
+      <div className="mb-4 md:mb-6">
+        <h2 className={CSS_CLASSES.cardTitle.large}>
+          {UI_TEXT.postDisplay.title}
+        </h2>
+      </div>
       <div className={CSS_CLASSES.postDisplay.container}>
-        <div
-          className={`${CSS_CLASSES.postDisplay.postBox} ${
-            generatedPost
-              ? CSS_CLASSES.postDisplay.postBoxGenerated
-              : CSS_CLASSES.postDisplay.postBoxEmpty
-          }`}
-        >
+        <div className={CSS_CLASSES.postDisplay.postArea}>
           <div
-            className={`${CSS_CLASSES.postDisplay.postText} ${
+            className={`${CSS_CLASSES.postDisplay.postBox} ${
               generatedPost
-                ? CSS_CLASSES.postDisplay.postTextGenerated
-                : CSS_CLASSES.postDisplay.postTextEmpty
+                ? CSS_CLASSES.postDisplay.postBoxGenerated
+                : CSS_CLASSES.postDisplay.postBoxEmpty
             }`}
           >
-            {displayPost}
+            <div
+              className={`${CSS_CLASSES.postDisplay.postText} ${
+                generatedPost
+                  ? CSS_CLASSES.postDisplay.postTextGenerated
+                  : CSS_CLASSES.postDisplay.postTextEmpty
+              }`}
+            >
+              {displayPost}
+            </div>
           </div>
         </div>
 

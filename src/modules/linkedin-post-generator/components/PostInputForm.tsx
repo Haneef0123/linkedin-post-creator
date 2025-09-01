@@ -1,17 +1,17 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  UI_TEXT,
-  CSS_CLASSES,
-  COMPONENT_CONFIG,
-} from "../constants/ui-constants";
+import { UI_TEXT, CSS_CLASSES } from "../constants/ui-constants";
+import { PostGeneratorOptions } from "../hooks/use-post-generator";
 
 interface PostInputFormProps {
   topic: string;
   onTopicChange: (topic: string) => void;
-  onGenerate: () => void;
+  onGenerate: (options?: PostGeneratorOptions) => void;
   isGenerating: boolean;
+  error?: string | null;
 }
 
 export const PostInputForm: React.FC<PostInputFormProps> = ({
@@ -19,21 +19,39 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
   onTopicChange,
   onGenerate,
   isGenerating,
+  error,
 }) => {
+  const [options, setOptions] = useState<PostGeneratorOptions>({
+    tone: "professional",
+    length: "medium",
+    includeHashtags: true,
+    includeEmojis: false,
+    targetAudience: "professionals",
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (topic.trim()) {
-      onGenerate();
+      onGenerate(options);
     }
   };
 
   return (
     <div className={CSS_CLASSES.card.base}>
-      <h2 className={CSS_CLASSES.cardTitle.large}>
-        {UI_TEXT.inputForm.title}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
+      <div className="mb-4 md:mb-6">
+        <h2 className={CSS_CLASSES.cardTitle.large}>
+          {UI_TEXT.inputForm.title}
+        </h2>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={CSS_CLASSES.form.container}>
+        <div className={CSS_CLASSES.form.fieldContainer}>
           <label htmlFor="topic" className={CSS_CLASSES.form.label}>
             {UI_TEXT.inputForm.label}
           </label>
@@ -46,6 +64,86 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
             rows={6}
           />
         </div>
+
+        {/* AI Options */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tone
+            </label>
+            <select
+              value={options.tone}
+              onChange={(e) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  tone: e.target.value as
+                    | "professional"
+                    | "casual"
+                    | "inspirational"
+                    | "educational",
+                }))
+              }
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="professional">Professional</option>
+              <option value="casual">Casual</option>
+              <option value="inspirational">Inspirational</option>
+              <option value="educational">Educational</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Length
+            </label>
+            <select
+              value={options.length}
+              onChange={(e) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  length: e.target.value as "short" | "medium" | "long",
+                }))
+              }
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="short">Short (100-150 words)</option>
+              <option value="medium">Medium (150-250 words)</option>
+              <option value="long">Long (250-400 words)</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.includeHashtags}
+              onChange={(e) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  includeHashtags: e.target.checked,
+                }))
+              }
+              className="mr-2"
+            />
+            <span className="text-sm text-gray-700">Include Hashtags</span>
+          </label>
+
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.includeEmojis}
+              onChange={(e) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  includeEmojis: e.target.checked,
+                }))
+              }
+              className="mr-2"
+            />
+            <span className="text-sm text-gray-700">Include Emojis</span>
+          </label>
+        </div>
         <Button
           type="submit"
           disabled={isGenerating || !topic.trim()}
@@ -54,7 +152,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
         >
           {isGenerating ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               {UI_TEXT.inputForm.generatingText}
             </>
           ) : (
