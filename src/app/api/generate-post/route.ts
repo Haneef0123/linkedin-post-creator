@@ -2,6 +2,26 @@
 // Key differences: Uses Gemini API instead of OpenAI, POST instead of GET, LinkedIn-specific prompts
 export const dynamic = "force-dynamic";
 
+interface FetchLikeResponse {
+  status: number;
+  ok: boolean;
+  json: () => Promise<unknown>;
+}
+
+interface GeminiError {
+  code: string;
+  message: string;
+}
+
+interface GeminiResponseBody {
+  candidates?: Array<{
+    content: {
+      parts: Array<{ text: string }>;
+    };
+  }>;
+  error?: GeminiError;
+}
+
 // Logic for the `/api/generate-post` endpoint - adapted for Google Gemini API
 export async function POST(request: Request) {
   try {
@@ -87,7 +107,7 @@ Return only the LinkedIn post content, nothing else.`;
     };
 
     // Sending our request using the Fetch API - same pattern as hello-gpt-app-router
-    let geminiResponse: any;
+    let geminiResponse: FetchLikeResponse;
     try {
       const fetchOptions = {
         method: "POST",
@@ -98,9 +118,9 @@ Return only the LinkedIn post content, nothing else.`;
       };
 
       geminiResponse = await fetch(geminiEndpointURL, fetchOptions);
-    } catch (fetchError: any) {
+    } catch (fetchError: unknown) {
       // If it's an SSL certificate error, try with a different approach
-      if (fetchError.cause?.code === "SELF_SIGNED_CERT_IN_CHAIN") {
+      if (fetchError instanceof Error && fetchError.cause instanceof Error && 'code' in fetchError.cause && fetchError.cause.code === "SELF_SIGNED_CERT_IN_CHAIN") {
         // Use dynamic import to avoid issues with Node.js modules in Edge runtime
         try {
           // For development/testing, we'll use an alternative approach
@@ -142,7 +162,7 @@ Return only the LinkedIn post content, nothing else.`;
                         (res.statusCode || 500) < 300,
                       json: () => Promise.resolve(jsonData),
                     });
-                  } catch (parseError) {
+                  } catch {
                     reject(new Error("Failed to parse response JSON"));
                   }
                 });
@@ -154,21 +174,26 @@ Return only the LinkedIn post content, nothing else.`;
             req.end();
           });
 
-          geminiResponse = response;
-        } catch (altError) {
-          throw new Error(`Network request failed: ${fetchError.message}`);
+          geminiResponse = response as FetchLikeResponse;
+        } catch {
+          const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown network error';
+          throw new Error(`Network request failed: ${errorMessage}`);
         }
       } else {
-        throw new Error(`Network request failed: ${fetchError.message}`);
+        const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown network error';
+        throw new Error(`Network request failed: ${errorMessage}`);
       }
     }
 
     // Processing the response body
-    const geminiResponseBody = await geminiResponse.json();
+    const geminiResponseBody = await geminiResponse.json() as GeminiResponseBody;
 
     // Error handling for the Gemini endpoint - same pattern as reference
     if (geminiResponse.status !== 200) {
-      let error: any = new Error("Gemini API request was unsuccessful.");
+      const error = new Error("Gemini API request was unsuccessful.") as Error & {
+        statusCode: number;
+        body: GeminiResponseBody;
+      };
       error.statusCode = geminiResponse.status;
       error.body = geminiResponseBody;
 
@@ -193,7 +218,7 @@ Return only the LinkedIn post content, nothing else.`;
 
     // Extract the generated content from Gemini response
     const completionText =
-      geminiResponseBody.candidates[0].content.parts[0].text.trim();
+      geminiResponseBody.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Unable to generate content";
 
     // Sending a successful response for our endpoint - same format as reference
     return new Response(
@@ -206,14 +231,14 @@ Return only the LinkedIn post content, nothing else.`;
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Error handling - same pattern as hello-gpt-app-router reference
 
     // Sending an unsuccessful response for our endpoint
     return new Response(
       JSON.stringify({ error: { message: "An error has occurred" } }),
       {
-        status: error.statusCode || 500,
+        status: error instanceof Error && 'statusCode' in error ? (error as Error & { statusCode: number }).statusCode || 500 : 500,
         headers: { "Content-Type": "application/json" },
       }
     );

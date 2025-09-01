@@ -83,7 +83,7 @@ export const usePostGenerator = () => {
         () => setCopySuccess(false),
         COMPONENT_CONFIG.animation.copySuccessTimeout
       );
-    } catch (err) {
+    } catch {
       // Silently handle copy errors
     }
   };
