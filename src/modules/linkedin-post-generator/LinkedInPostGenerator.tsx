@@ -1,12 +1,14 @@
 "use client";
 
 import React from "react";
-import { PostGeneratorHeader } from "./components/PostGeneratorHeader";
-import { PostInputForm } from "./components/PostInputForm";
-import { PostDisplay } from "./components/PostDisplay";
-import { PostTipsSection } from "./components/PostTipsSection";
-import { usePostGenerator } from "./hooks/use-post-generator";
-import { CSS_CLASSES } from "./constants/ui-constants";
+import { 
+  PostGeneratorHeader, 
+  PostInputForm, 
+  PostDisplay, 
+  PostTipsSection 
+} from "./components";
+import { usePostGenerator } from "./hooks";
+import { CSS_CLASSES } from "./constants";
 
 export const LinkedInPostGenerator: React.FC = () => {
   const {
@@ -45,6 +47,7 @@ export const LinkedInPostGenerator: React.FC = () => {
               copySuccess={copySuccess}
               onCopy={copyToClipboard}
               stats={stats}
+              isGenerating={isGenerating}
             />
           </div>
         </div>
