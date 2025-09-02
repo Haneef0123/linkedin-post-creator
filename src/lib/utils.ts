@@ -53,8 +53,8 @@ export async function createViralLinkedInPrompt(
  */
 async function fetchPromptFromFirebaseREST(promptId: string): Promise<string> {
   try {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API;
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const apiKey = process.env.FIREBASE_API_KEY;
 
     if (!projectId) {
       throw new Error("Firebase project ID not configured");

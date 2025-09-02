@@ -15,8 +15,8 @@ export default function PromptsAdmin() {
     setLoading(true);
     try {
       // Use Firebase REST API
-      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT;
-      const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API;
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const apiKey = process.env.FIREBASE_API_KEY;
 
       if (!projectId || !apiKey) {
         throw new Error("Firebase configuration missing");
@@ -52,8 +52,8 @@ export default function PromptsAdmin() {
     setSaving(true);
     try {
       //test
-      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT;
-      const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API;
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const apiKey = process.env.FIREBASE_API_KEY;
 
       if (!projectId || !apiKey) {
         throw new Error("Firebase configuration missing");
