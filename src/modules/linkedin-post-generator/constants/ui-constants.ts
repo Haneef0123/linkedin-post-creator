@@ -10,6 +10,28 @@ export const UI_TEXT = {
     label: "Enter your topic or idea",
     placeholder:
       "e.g., 'My recent project success', 'Industry insights', 'Career milestone'...",
+    animatedPlaceholders: [
+      "Share your latest career milestone...",
+      "Discuss industry trends and insights...",
+      "Tell a story about overcoming challenges...",
+      "Share tips from your professional experience...",
+      "Announce a new project or achievement...",
+      "Give advice to your professional network...",
+      "Share lessons learned from failures...",
+      "Discuss upcoming industry changes...",
+      "Celebrate team accomplishments...",
+      "Share your thoughts on work-life balance...",
+      "Talk about a book that changed your perspective...",
+      "Share networking tips that actually work...",
+      "Discuss the future of remote work...",
+      "Give career advice to your younger self...",
+      "Share your morning routine for productivity...",
+      "Talk about AI's impact on your industry...",
+      "Share a mentor who inspired you...",
+      "Discuss sustainable business practices...",
+      "Share your biggest professional risk...",
+      "Talk about innovation in your field...",
+    ],
     generateButton: "Generate LinkedIn Post",
     generatingText: "Generating...",
   },
@@ -53,9 +75,9 @@ export const UI_TEXT = {
 // CSS Classes Constants
 export const CSS_CLASSES = {
   layout: {
-    container: "min-h-screen bg-background py-10 md:px-16",
+    container: "min-h-screen bg-background pt-10 pb-0 md:py-10 md:px-16",
     maxWidth: "max-w-screen-xl mx-auto w-full",
-    grid: "flex flex-col gap-8 md:gap-6 md:px-0 lg:grid lg:grid-cols-2 lg:gap-6", // 32px gap on mobile, 24px on desktop
+    grid: "flex flex-col gap-0 md:gap-6 md:px-0 lg:grid lg:grid-cols-2 lg:gap-6", // No gap on mobile, 24px on desktop
   },
   header: {
     container: "text-center mb-8 md:mb-12 px-4", // Keep header padding on mobile for text centering
