@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
 import { UI_TEXT, CSS_CLASSES } from "../constants/ui-constants";
 import { PostGeneratorOptions } from "../hooks/use-post-generator";
 
@@ -23,7 +24,6 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
 }) => {
   const [options, setOptions] = useState<PostGeneratorOptions>({
     tone: "professional",
-    length: "medium",
     includeHashtags: true,
     includeEmojis: false,
     targetAudience: "professionals",
@@ -66,33 +66,28 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
         </div>
 
         {/* AI Options */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tone
-            </label>
-            <select
-              value={options.tone}
-              onChange={(e) =>
-                setOptions((prev) => ({
-                  ...prev,
-                  tone: e.target.value as
-                    | "professional"
-                    | "casual"
-                    | "inspirational"
-                    | "educational",
-                }))
-              }
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="professional">Professional</option>
-              <option value="casual">Casual</option>
-              <option value="inspirational">Inspirational</option>
-              <option value="educational">Educational</option>
-            </select>
-          </div>
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <Select
+            label="Tone"
+            value={options.tone}
+            onChange={(e) =>
+              setOptions((prev) => ({
+                ...prev,
+                tone: e.target.value as
+                  | "professional"
+                  | "casual"
+                  | "inspirational"
+                  | "educational",
+              }))
+            }
+          >
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="inspirational">Inspirational</option>
+            <option value="educational">Educational</option>
+          </Select>
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Length
             </label>
@@ -110,7 +105,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
               <option value="medium">Medium (150-250 words)</option>
               <option value="long">Long (250-400 words)</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -147,7 +142,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
         <Button
           type="submit"
           disabled={isGenerating || !topic.trim()}
-          className={CSS_CLASSES.form.button}
+          className="w-full h-12 text-sm font-bold transition-all duration-200 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-md hover:shadow-lg transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none rounded-lg"
           size="lg"
         >
           {isGenerating ? (
