@@ -1,12 +1,8 @@
-// Gemini API Service - Using production-ready rate limiting libraries
+// Gemini API Service - Simplified without rate limiting
 import { API_CONFIG } from "@/config/api";
 import { API_ERRORS, HTTP_STATUS } from "@/constants/api-constants";
 import { ApiClient } from "./api-client";
 import { createViralLinkedInPrompt } from "@/lib/utils";
-import {
-  ApiRateLimiter,
-  API_LIMITER_PRESETS,
-} from "@/lib/api-rate-limiter";
 import {
   ApiResponse,
   GeminiGenerateRequest,
@@ -16,13 +12,9 @@ import {
 
 export class GeminiApiService {
   private apiClient = ApiClient.getInstance();
-  private rateLimiter: ApiRateLimiter;
 
   constructor() {
-    // Initialize with conservative settings for Gemini API
-    this.rateLimiter = new ApiRateLimiter(
-      API_LIMITER_PRESETS.CONSERVATIVE
-    );
+    // Simplified constructor without rate limiting
   }
 
   // Internal API call - maintains original hook logic
@@ -53,17 +45,13 @@ export class GeminiApiService {
     };
   }
 
-  // Direct Gemini API call - maintains ALL original route.ts logic
+  // Direct Gemini API call - simplified without rate limiting
   async generatePostDirect(
     params: GeminiGenerateRequest
   ): Promise<ApiResponse<GeminiGenerateResponse>> {
     try {
-      // Use production-ready rate limiting with retry and queue management
-      const result = await this.rateLimiter.execute(async () => {
-        return await this.makeDirectApiCall(params);
-      }, {
-        priority: 1, // High priority for direct API calls
-      });
+      // Direct API call without rate limiting
+      const result = await this.makeDirectApiCall(params);
 
       // Transform response to maintain original format
       return {
@@ -81,27 +69,6 @@ export class GeminiApiService {
         },
       };
     }
-  }
-
-  /**
-   * Get rate limiting status and metrics
-   */
-  async getRateLimitStatus() {
-    return await this.rateLimiter.getStatus();
-  }
-
-  /**
-   * Clear the request queue (useful for testing or emergency situations)
-   */
-  clearRequestQueue(): void {
-    this.rateLimiter.clearQueue();
-  }
-
-  /**
-   * Get detailed metrics
-   */
-  async getMetrics() {
-    return await this.rateLimiter.getMetrics();
   }
 
   /**
