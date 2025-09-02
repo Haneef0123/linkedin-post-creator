@@ -25,7 +25,7 @@ export function createViralLinkedInPrompt(
   const {
     topic,
     tone = "professional",
-    length = "medium",
+    length = "short", // Changed default from "medium" to "short"
     targetAudience = "professionals",
     includeEmojis = false,
     includeHashtags = true,

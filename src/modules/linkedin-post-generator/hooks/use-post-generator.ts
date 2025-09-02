@@ -30,7 +30,7 @@ async function callGeminiAPI(
   const result = await geminiService.generatePost({
     topic,
     tone: options.tone,
-    length: options.length,
+    length: options.length || "short", // Default to short when not specified
     includeHashtags: options.includeHashtags,
     includeEmojis: options.includeEmojis,
     targetAudience: options.targetAudience,

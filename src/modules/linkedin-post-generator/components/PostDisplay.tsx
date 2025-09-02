@@ -50,8 +50,14 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({
           <Button
             variant="outline"
             size="lg"
-            className={`${CSS_CLASSES.postDisplay.copyButton} ${
-              copySuccess ? CSS_CLASSES.postDisplay.copyButtonSuccess : ""
+            className={`min-w-[160px] h-12 text-sm font-bold transition-all duration-200 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] ${
+              copySuccess
+                ? "bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+            } ${
+              !generatedPost
+                ? "opacity-50 cursor-not-allowed transform-none"
+                : ""
             }`}
             disabled={!generatedPost}
             onClick={onCopy}

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const {
       topic,
       tone = "professional",
-      length = "medium",
+      length = "short", // Changed default from "medium" to "short"
       includeHashtags = true,
       includeEmojis = false,
       targetAudience = "professionals",
