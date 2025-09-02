@@ -51,7 +51,6 @@ export default function PromptsAdmin() {
   const savePrompt = async () => {
     setSaving(true);
     try {
-      //test
       const projectId = process.env.FIREBASE_PROJECT_ID;
       const apiKey = process.env.FIREBASE_API_KEY;
 
