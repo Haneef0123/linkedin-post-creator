@@ -14,7 +14,16 @@ export const API_CONFIG = {
       topK: 40,
       topP: 0.95,
       maxOutputTokens: 300,
-    }
+    },
+    // Add grounding configuration for web search
+    GROUNDING_CONFIG: {
+      googleSearchRetrieval: {
+        dynamicRetrievalConfig: {
+          mode: "MODE_DYNAMIC",
+          dynamicThreshold: 0.7,
+        },
+      },
+    },
   },
   
   // Internal API endpoints - keeping original structure

@@ -27,6 +27,17 @@ export interface GeminiContent {
   parts: GeminiContentPart[];
 }
 
+// Grounding types for web search functionality
+export interface GeminiGroundingMetadata {
+  groundingChunks?: Array<{
+    web?: {
+      uri: string;
+      title: string;
+    };
+  }>;
+  webSearchQueries?: string[];
+}
+
 export interface GeminiCandidate {
   content: GeminiContent;
   finishReason?: string;
@@ -36,6 +47,7 @@ export interface GeminiCandidate {
     blocked?: boolean;
   }>;
   tokenCount?: number;
+  groundingMetadata?: GeminiGroundingMetadata;
 }
 
 export interface GeminiGenerationConfig {
@@ -93,12 +105,18 @@ export interface GeminiGenerateRequest {
   includeHashtags?: boolean;
   includeEmojis?: boolean;
   targetAudience?: string;
+  enableWebSearch?: boolean;
   [key: string]: SerializableData | undefined;
+}
+
+export interface GeminiGroundingRequest extends GeminiGenerateRequest {
+  enableWebSearch?: boolean;
 }
 
 export interface GeminiGenerateResponse {
   success: boolean;
   content: string;
+  groundingMetadata?: GeminiGroundingMetadata;
 }
 
 // API Error interface

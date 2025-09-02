@@ -17,6 +17,7 @@ export async function POST(request: Request) {
       includeHashtags = true,
       includeEmojis = false,
       targetAudience = "professionals",
+      enableWebSearch = false, // Add this parameter
     } = await request.json();
 
     // Original validation logic from route.ts - preserving exact error messages
@@ -32,13 +33,16 @@ export async function POST(request: Request) {
 
     // Use new service but maintain all original logic
     const geminiService = new GeminiApiService();
-    const result = await geminiService.generatePostDirect({
+    
+    // Use the enhanced method with web search
+    const result = await geminiService.generatePostDirectWithSearch({
       topic,
       tone,
       length,
       includeHashtags,
       includeEmojis,
       targetAudience,
+      enableWebSearch,
     });
 
     if (!result.success) {

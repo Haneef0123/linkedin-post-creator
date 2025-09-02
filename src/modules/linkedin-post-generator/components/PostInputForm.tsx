@@ -27,6 +27,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
     includeHashtags: true,
     includeEmojis: false,
     targetAudience: "professionals",
+    enableWebSearch: false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,7 +112,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
           </div> */}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -140,6 +141,21 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
               className="mr-2"
             />
             <span className="text-sm text-gray-700">Include Emojis</span>
+          </label>
+
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.enableWebSearch}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  enableWebSearch: e.target.checked,
+                }))
+              }
+              className="mr-2"
+            />
+            <span className="text-sm text-gray-700">Enable Web Search</span>
           </label>
         </div>
         <Button

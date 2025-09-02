@@ -17,6 +17,7 @@ export interface PostGeneratorOptions {
   includeHashtags?: boolean;
   includeEmojis?: boolean;
   targetAudience?: string;
+  enableWebSearch?: boolean;
 }
 
 // Updated API call using new service but maintaining original logic and error handling
@@ -24,7 +25,8 @@ async function callGeminiAPI(
   topic: string,
   options: PostGeneratorOptions = {}
 ): Promise<string> {
-  // Maintaining original function name and signature for backward compatibility
+  // Always use the internal API endpoint which runs on the server side
+  // This ensures environment variables are accessible for both regular and web search requests
   const geminiService = new GeminiApiService();
 
   const result = await geminiService.generatePost({
@@ -34,6 +36,7 @@ async function callGeminiAPI(
     includeHashtags: options.includeHashtags,
     includeEmojis: options.includeEmojis,
     targetAudience: options.targetAudience,
+    enableWebSearch: options.enableWebSearch, // Pass web search option to API
   });
 
   // Original response handling logic - maintaining exact error format
