@@ -7,7 +7,7 @@ import {
   PostDisplay,
   PostTipsSection,
 } from "./components";
-import { usePostGenerator } from "./hooks";
+import { usePostGenerator, PostGeneratorOptions } from "./hooks";
 import { CSS_CLASSES } from "./constants";
 
 export const LinkedInPostGenerator: React.FC = () => {
@@ -37,7 +37,7 @@ export const LinkedInPostGenerator: React.FC = () => {
     }
   };
 
-  const handleGenerate = (options?: any) => {
+  const handleGenerate = (options?: PostGeneratorOptions) => {
     generatePost(options);
     // Small delay to ensure the component state updates
     setTimeout(() => {
