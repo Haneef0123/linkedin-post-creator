@@ -1,8 +1,12 @@
-// Gemini API Service - Extracted from route.ts logic while preserving all original functionality
+// Gemini API Service - Using production-ready rate limiting libraries
 import { API_CONFIG } from "@/config/api";
 import { API_ERRORS, HTTP_STATUS } from "@/constants/api-constants";
 import { ApiClient } from "./api-client";
 import { createViralLinkedInPrompt } from "@/lib/utils";
+import {
+  ApiRateLimiter,
+  API_LIMITER_PRESETS,
+} from "@/lib/api-rate-limiter";
 import {
   ApiResponse,
   GeminiGenerateRequest,
@@ -12,6 +16,14 @@ import {
 
 export class GeminiApiService {
   private apiClient = ApiClient.getInstance();
+  private rateLimiter: ApiRateLimiter;
+
+  constructor() {
+    // Initialize with conservative settings for Gemini API
+    this.rateLimiter = new ApiRateLimiter(
+      API_LIMITER_PRESETS.CONSERVATIVE
+    );
+  }
 
   // Internal API call - maintains original hook logic
   async generatePost(
@@ -45,17 +57,67 @@ export class GeminiApiService {
   async generatePostDirect(
     params: GeminiGenerateRequest
   ): Promise<ApiResponse<GeminiGenerateResponse>> {
+    try {
+      // Use production-ready rate limiting with retry and queue management
+      const result = await this.rateLimiter.execute(async () => {
+        return await this.makeDirectApiCall(params);
+      }, {
+        priority: 1, // High priority for direct API calls
+      });
+
+      // Transform response to maintain original format
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error: unknown) {
+      const errorObj = error as Error & { code?: string; statusCode?: number };
+      return {
+        success: false,
+        error: {
+          message: errorObj.message || API_ERRORS.UNKNOWN_ERROR,
+          code: errorObj.code,
+          statusCode: errorObj.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        },
+      };
+    }
+  }
+
+  /**
+   * Get rate limiting status and metrics
+   */
+  async getRateLimitStatus() {
+    return await this.rateLimiter.getStatus();
+  }
+
+  /**
+   * Clear the request queue (useful for testing or emergency situations)
+   */
+  clearRequestQueue(): void {
+    this.rateLimiter.clearQueue();
+  }
+
+  /**
+   * Get detailed metrics
+   */
+  async getMetrics() {
+    return await this.rateLimiter.getMetrics();
+  }
+
+  /**
+   * Internal method to make the actual API call
+   */
+  private async makeDirectApiCall(
+    params: GeminiGenerateRequest
+  ): Promise<GeminiGenerateResponse> {
+
     // Original API key check from route.ts
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return {
         success: false,
-        error: {
-          message: API_ERRORS.MISSING_API_KEY,
-          code: "MISSING_API_KEY",
-          statusCode: HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        },
+        content: API_ERRORS.MISSING_API_KEY,
       };
     }
 
@@ -104,20 +166,13 @@ export class GeminiApiService {
       if (result.error?.code === "RESOURCE_EXHAUSTED") {
         return {
           success: false,
-          error: {
-            message: API_ERRORS.QUOTA_EXCEEDED,
-            statusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
-            code: "QUOTA_EXCEEDED",
-          },
+          content: API_ERRORS.QUOTA_EXCEEDED,
         };
       }
 
       return {
         success: false,
-        error: result.error || {
-          message: API_ERRORS.UNSUCCESSFUL_REQUEST,
-          statusCode: HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        },
+        content: result.error?.message || API_ERRORS.UNSUCCESSFUL_REQUEST,
       };
     }
 
@@ -129,10 +184,7 @@ export class GeminiApiService {
 
     return {
       success: true,
-      data: {
-        success: true,
-        content: completionText,
-      },
+      content: completionText,
     };
   }
 }
