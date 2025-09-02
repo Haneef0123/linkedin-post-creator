@@ -71,7 +71,7 @@ export class GeminiApiService {
         : "medium";
 
     // Original prompt building logic from route.ts - maintaining exact function call
-    const promptText = createViralLinkedInPrompt({
+    const promptText = await createViralLinkedInPrompt({
       topic: params.topic,
       tone: params.tone,
       length: validLength,
