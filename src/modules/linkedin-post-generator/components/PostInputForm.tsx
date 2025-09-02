@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
+import { AnimatedPlaceholderTextarea } from "./AnimatedPlaceholderTextarea";
 import { UI_TEXT, CSS_CLASSES } from "../constants/ui-constants";
 import { PostGeneratorOptions } from "../hooks/use-post-generator";
 
@@ -55,11 +55,14 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
           <label htmlFor="topic" className={CSS_CLASSES.form.label}>
             {UI_TEXT.inputForm.label}
           </label>
-          <Textarea
+          <AnimatedPlaceholderTextarea
             id="topic"
-            placeholder={UI_TEXT.inputForm.placeholder}
+            placeholders={UI_TEXT.inputForm.animatedPlaceholders}
+            typingSpeed={70}
+            pauseDuration={800}
+            deletingSpeed={35}
             value={topic}
-            onChange={(e) => onTopicChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onTopicChange(e.target.value)}
             className={CSS_CLASSES.form.textarea}
             rows={6}
           />
@@ -70,7 +73,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
           <Select
             label="Tone"
             value={options.tone}
-            onChange={(e) =>
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setOptions((prev) => ({
                 ...prev,
                 tone: e.target.value as
@@ -113,7 +116,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
             <input
               type="checkbox"
               checked={options.includeHashtags}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setOptions((prev) => ({
                   ...prev,
                   includeHashtags: e.target.checked,
@@ -128,7 +131,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
             <input
               type="checkbox"
               checked={options.includeEmojis}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setOptions((prev) => ({
                   ...prev,
                   includeEmojis: e.target.checked,
