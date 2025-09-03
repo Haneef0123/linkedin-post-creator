@@ -49,71 +49,91 @@ export async function createViralLinkedInPrompt(
 }
 
 /**
- * Fetches prompt template from Firebase Firestore using REST API
+ * Fetches prompt template from Firebase Firestore using secure methods
  */
 async function fetchPromptFromFirebaseREST(promptId: string): Promise<string> {
   try {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    // Check if we're on server-side (can access environment variables directly)
+    const isServer = typeof window === "undefined";
+    
+    if (isServer) {
+      // Server-side: Use environment variables directly
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const apiKey = process.env.FIREBASE_API_KEY;
 
-    if (!projectId) {
-      throw new Error("Firebase project ID not configured");
-    }
-
-    if (!apiKey) {
-      throw new Error("Firebase API key not configured");
-    }
-
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/prompts/${promptId}?key=${apiKey}`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // Add timeout to prevent hanging
-      signal: AbortSignal.timeout(10000), // 10 second timeout
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error("Prompt document not found");
-      }
-      if (response.status === 403) {
-        throw new Error(
-          "Permission denied. Please check Firestore security rules or authentication."
-        );
+      if (!projectId) {
+        throw new Error("Firebase project ID not configured");
       }
 
-      // Try to get more detailed error information
-      const errorData = await response.json().catch(() => null);
-      const errorMessage =
-        errorData?.error?.message || `HTTP error! status: ${response.status}`;
-      throw new Error(errorMessage);
+      if (!apiKey) {
+        throw new Error("Firebase API key not configured");
+      }
+
+      const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/prompts/${promptId}?key=${apiKey}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Add timeout to prevent hanging
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Prompt document not found");
+        }
+        if (response.status === 403) {
+          throw new Error(
+            "Permission denied. Please check Firestore security rules or authentication."
+          );
+        }
+
+        // Try to get more detailed error information
+        const errorData = await response.json().catch(() => null);
+        const errorMessage =
+          errorData?.error?.message || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      const fields = data.fields;
+      if (!fields) {
+        throw new Error("No fields found in document");
+      }
+
+      const template = fields.template?.stringValue;
+      if (!template) {
+        throw new Error("Template field not found or empty");
+      }
+
+      return template;
+    } else {
+      // Client-side: Use secure API route
+      const response = await fetch(`/api/firebase/prompts?id=${promptId}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Prompt document not found");
+        }
+        if (response.status === 403) {
+          throw new Error(
+            "Permission denied. Please check Firestore security rules."
+          );
+        }
+
+        const errorData = await response.json().catch(() => null);
+        const errorMessage =
+          errorData?.error || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data.template;
     }
-
-    const data = await response.json();
-
-    // Extract fields from Firestore REST API response
-    const fields = data.fields;
-    if (!fields) {
-      throw new Error("No fields found in document");
-    }
-
-    const isActive = fields.isActive?.booleanValue;
-    const template = fields.template?.stringValue;
-
-    if (isActive === false) {
-      throw new Error("Prompt template is not active");
-    }
-
-    if (!template?.trim()) {
-      throw new Error("Template field is empty or not found");
-    }
-
-    return template;
   } catch (error) {
-    console.error("Firebase REST API fetch error:", error);
+    console.error("Error fetching prompt from Firebase:", error);
     throw error;
   }
 }

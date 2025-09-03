@@ -2,39 +2,52 @@
 
 import React, { useState, useEffect } from "react";
 
+interface EnvDebugInfo {
+  useSecureAPI: boolean;
+  serverSide: boolean;
+  clientSide: boolean;
+}
+
 export default function PromptsAdmin() {
   const [template, setTemplate] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [envDebug, setEnvDebug] = useState<EnvDebugInfo | null>(null);
 
   useEffect(() => {
+    // Debug environment variables immediately
+    const envInfo = {
+      useSecureAPI: true,
+      serverSide: typeof window === "undefined",
+      clientSide: typeof window !== "undefined",
+    };
+    setEnvDebug(envInfo);
+    console.log("Client-side environment debug:", envInfo);
+
     loadPrompt();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadPrompt = async () => {
     setLoading(true);
     try {
-      // Use Firebase REST API
-      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-      const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+      // Use secure API route instead of direct Firebase access
+      const response = await fetch(
+        "/api/firebase/prompts?id=linkedin-viral-prompt"
+      );
 
-      if (!projectId || !apiKey) {
-        throw new Error("Firebase configuration missing");
-      }
-
-      const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/prompts/linkedin-viral-prompt?key=${apiKey}`;
-
-      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        const template = data.fields?.template?.stringValue;
-        setTemplate(template || getDefaultTemplate());
+        setTemplate(data.template || getDefaultTemplate());
       } else {
         if (response.status === 403) {
           console.error("Permission denied - check Firestore security rules");
           alert(
             "Permission denied. Please check Firestore security rules or contact admin."
           );
+        } else if (response.status === 404) {
+          console.log("Prompt not found, using default template");
+        } else {
+          console.error("Error loading prompt:", response.statusText);
         }
         setTemplate(getDefaultTemplate());
       }
@@ -51,46 +64,24 @@ export default function PromptsAdmin() {
   const savePrompt = async () => {
     setSaving(true);
     try {
-      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-      const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-
-      if (!projectId || !apiKey) {
-        throw new Error("Firebase configuration missing");
-      }
-
-      const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/prompts/linkedin-viral-prompt?key=${apiKey}`;
-
-      const payload = {
-        fields: {
-          id: { stringValue: "linkedin-viral-prompt" },
-          name: { stringValue: "LinkedIn Viral Post Generator" },
-          template: { stringValue: template },
-          version: { stringValue: "1.0" },
-          isActive: { booleanValue: true },
-          createdAt: { stringValue: new Date().toISOString() },
-          updatedAt: { stringValue: new Date().toISOString() },
-        },
-      };
-
-      const response = await fetch(url, {
-        method: "PATCH",
+      // Use secure API route instead of direct Firebase access
+      const response = await fetch("/api/firebase/prompts", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          id: "linkedin-viral-prompt",
+          template: template,
+        }),
       });
 
       if (response.ok) {
         alert("Prompt saved successfully!");
       } else {
-        if (response.status === 403) {
-          throw new Error(
-            "Permission denied. Please check Firestore security rules."
-          );
-        }
         const errorData = await response.json().catch(() => null);
         const errorMessage =
-          errorData?.error?.message || `HTTP error! status: ${response.status}`;
+          errorData?.error || `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
       }
     } catch (error) {
@@ -161,6 +152,18 @@ Return only the LinkedIn post content, nothing else.`;
               </code>
               , etc.
             </p>
+
+            {/* Debug Environment Variables */}
+            {envDebug && (
+              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h3 className="text-sm font-semibold text-yellow-800 mb-2">
+                  Environment Debug:
+                </h3>
+                <pre className="text-xs text-yellow-700">
+                  {JSON.stringify(envDebug, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
 
           <div className="mb-6">
