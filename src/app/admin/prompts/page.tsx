@@ -2,11 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 
+interface EnvDebugInfo {
+  useSecureAPI: boolean;
+  serverSide: boolean;
+  clientSide: boolean;
+}
+
 export default function PromptsAdmin() {
   const [template, setTemplate] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [envDebug, setEnvDebug] = useState<any>(null);
+  const [envDebug, setEnvDebug] = useState<EnvDebugInfo | null>(null);
 
   useEffect(() => {
     // Debug environment variables immediately
