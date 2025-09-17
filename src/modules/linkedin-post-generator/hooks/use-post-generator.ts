@@ -17,6 +17,7 @@ export interface PostGeneratorOptions {
   includeHashtags?: boolean;
   includeEmojis?: boolean;
   targetAudience?: string;
+  industry?: string;
 }
 
 // Updated API call using new service but maintaining original logic and error handling
@@ -67,7 +68,10 @@ export const usePostGenerator = () => {
       );
 
       // Fallback to template-based generation
-      const selectedTemplate = getPostTemplate(topic);
+      const selectedTemplate = getPostTemplate(
+        options.industry || "tech",
+        topic
+      );
       setGeneratedPost(selectedTemplate);
     } finally {
       setIsGenerating(false);

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { AnimatedPlaceholderTextarea } from "./AnimatedPlaceholderTextarea";
 import { UI_TEXT, CSS_CLASSES } from "../constants/ui-constants";
+import { postTemplates } from "../data/post-templates";
 import { PostGeneratorOptions } from "../hooks/use-post-generator";
 
 interface PostInputFormProps {
@@ -27,6 +28,7 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
     includeHashtags: true,
     includeEmojis: false,
     targetAudience: "professionals",
+    industry: "tech",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,7 +64,9 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
             pauseDuration={800}
             deletingSpeed={35}
             value={topic}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onTopicChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              onTopicChange(e.target.value)
+            }
             className={CSS_CLASSES.form.textarea}
             rows={6}
           />
@@ -70,6 +74,22 @@ export const PostInputForm: React.FC<PostInputFormProps> = ({
 
         {/* AI Options */}
         <div className="grid grid-cols-1 gap-4 mb-4">
+          <Select
+            label="Industry"
+            value={options.industry || "tech"}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setOptions((prev) => ({
+                ...prev,
+                industry: e.target.value,
+              }))
+            }
+          >
+            {Object.keys(postTemplates.industries).map((industry) => (
+              <option key={industry} value={industry}>
+                {industry.charAt(0).toUpperCase() + industry.slice(1)}
+              </option>
+            ))}
+          </Select>
           <Select
             label="Tone"
             value={options.tone}
